@@ -1,15 +1,41 @@
 // script.js
 
 const img = new Image(); // used to load image from <input> and draw to canvas
+const canvas = document.querySelector('#user-image');
+const imgInput = document.querySelector('#image-input');
+const clearButton = document.querySelector('#button-group').children[0];
+const readButton = document.querySelector('#button-group').children[1];
+const textTop = document.querySelector('#text-top');
+const textBottom = document.querySelector('#text-bottom');
 
 // Fires whenever the img object loads a new image (such as with img.src =)
 img.addEventListener('load', () => {
-  // TODO
-
+  // clear the canvas context
+  let context = canvas.getContext('2d');
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  // toggle the relevant buttons (submit, clear, and read text buttons) by disabling or enabling them as needed
+  textTop.value = '';
+  textBottom.value = '';
+  clearButton.disabled = true;
+  readButton.disabled = true;
+  // fill the canvas context with black to add borders on non-square images
+  context.fillStyle = 'black';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  // draw the uploaded image onto the canvas with the correct width, height, leftmost coordinate (startX), and topmost coordinate (startY) using generated dimensions from the given function getDimensions
+  let dimensions = getDimmensions(canvas.width, canvas.height, img.width, img.height);
+  context.drawImage(img, dimensions.startX, dimensions.startY, dimensions.width, dimensions.height);
   // Some helpful tips:
   // - Fill the whole Canvas with black first to add borders on non-square images, then draw on top
   // - Clear the form when a new image is selected
   // - If you draw the image to canvas here, it will update as soon as a new image is selected
+});
+
+imgInput.addEventListener('change', () => {
+  // load in the selected image into the Image object (img) src attribute
+  let file = imgInput.files[0]
+  img.src = URL.createObjectURL(file);
+  // set the image alt attribute by extracting the image file name from the file path
+  img.alt = file.name;
 });
 
 /**
