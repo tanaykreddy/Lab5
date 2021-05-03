@@ -10,6 +10,11 @@ const readButton = document.querySelector("[type='button']");
 const textTop = document.querySelector('#text-top');
 const textBottom = document.querySelector('#text-bottom');
 const form = document.querySelector('#generate-meme');
+const volumeIcon = document.querySelector('#volume-group').children[0];
+const volumeSlider = document.querySelector("[type='range']");
+const voiceSelect = document.querySelector('#voice-selection');
+const synth = window.speechSynthesis;
+var voices = [];
 
 // Fires whenever the img object loads a new image (such as with img.src =)
 img.addEventListener('load', () => {
@@ -23,6 +28,7 @@ img.addEventListener('load', () => {
   readButton.disabled = true;
   textTop.disabled = false;
   textBottom.disabled = false;
+  voiceSelect.disabled = true;
   // fill the canvas context with black to add borders on non-square images
   context.fillStyle = 'black';
   context.fillRect(0, 0, canvas.width, canvas.height);
@@ -53,6 +59,9 @@ form.addEventListener('submit', (e) => {
   readButton.disabled = false;
   textTop.disabled = true;
   textBottom.disabled = true;
+  voiceSelect.disabled = false;
+  // populate voice list
+  populateVoiceList();
 });
 
 clearButton.addEventListener('click', () => {
@@ -66,6 +75,62 @@ clearButton.addEventListener('click', () => {
   readButton.disabled = true;
   textTop.disabled = false;
   textBottom.disabled = false;
+  voiceSelect.disabled = true;
+});
+
+readButton.addEventListener('click', () => {
+  // on click, have the browser speak the text in the two inputs with ids text-top and text-bottom out loud using the selected voice type in the voice-selection dropdown
+  let utterTop = new SpeechSynthesisUtterance(textTop.value);
+  let utterBottom = new SpeechSynthesisUtterance(textBottom.value);
+  let selectedOption = voiceSelect.selectedOptions[0].getAttribute('data-name');
+  for(let i = 0; i < voices.length ; i++) {
+    if(voices[i].name === selectedOption) {
+      utterTop.voice = voices[i];
+      utterBottom.voice = voices[i];
+    }
+  }
+  // update the volume value to increase or decrease the volume at which the text is read if the read text button is clicked
+  utterTop.volume = volumeSlider.value / 100;
+  utterBottom.volume = volumeSlider.value / 100;
+  synth.speak(utterTop);
+  synth.speak(utterBottom);
+});
+
+function populateVoiceList() {
+  voices = synth.getVoices();
+
+  for (var i = 0; i < voices.length ; i++) {
+    var option = document.createElement('option');
+    option.textContent = voices[i].name + ' (' + voices[i].lang + ')';
+
+    if (voices[i].default) {
+      option.textContent += ' -- DEFAULT';
+    }
+
+    option.setAttribute('data-lang', voices[i].lang);
+    option.setAttribute('data-name', voices[i].name);
+    voiceSelect.appendChild(option);
+  }
+}
+
+volumeSlider.addEventListener('input', () => {
+  // change the volume icons depending on the following volume ranges: (note: you can find these icons in the icons directory)
+  if (volumeSlider.value == 0) {
+    volumeIcon.src = 'icons/volume-level-0.svg';
+    volumeIcon.alt = 'Volume Level 0';
+  }
+  else if (volumeSlider.value <= 33) {
+    volumeIcon.src = 'icons/volume-level-1.svg';
+    volumeIcon.alt = 'Volume Level 1';
+  }
+  else if (volumeSlider.value <= 66) {
+    volumeIcon.src = 'icons/volume-level-2.svg';
+    volumeIcon.alt = 'Volume Level 2';
+  }
+  else {
+    volumeIcon.src = 'icons/volume-level-3.svg';
+    volumeIcon.alt = 'Volume Level 3';
+  }
 });
 
 /**
