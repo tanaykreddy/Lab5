@@ -2,32 +2,33 @@
 
 const img = new Image(); // used to load image from <input> and draw to canvas
 const canvas = document.querySelector('#user-image');
+const context = canvas.getContext('2d');
 const imgInput = document.querySelector('#image-input');
-const clearButton = document.querySelector('#button-group').children[0];
-const readButton = document.querySelector('#button-group').children[1];
+const generateButton = document.querySelector("[type='submit']");
+const clearButton = document.querySelector("[type='reset']");
+const readButton = document.querySelector("[type='button']");
 const textTop = document.querySelector('#text-top');
 const textBottom = document.querySelector('#text-bottom');
+const form = document.querySelector('#generate-meme');
 
 // Fires whenever the img object loads a new image (such as with img.src =)
 img.addEventListener('load', () => {
   // clear the canvas context
-  let context = canvas.getContext('2d');
   context.clearRect(0, 0, canvas.width, canvas.height);
   // toggle the relevant buttons (submit, clear, and read text buttons) by disabling or enabling them as needed
   textTop.value = '';
   textBottom.value = '';
+  generateButton.disabled = false;
   clearButton.disabled = true;
   readButton.disabled = true;
+  textTop.disabled = false;
+  textBottom.disabled = false;
   // fill the canvas context with black to add borders on non-square images
   context.fillStyle = 'black';
   context.fillRect(0, 0, canvas.width, canvas.height);
   // draw the uploaded image onto the canvas with the correct width, height, leftmost coordinate (startX), and topmost coordinate (startY) using generated dimensions from the given function getDimensions
   let dimensions = getDimmensions(canvas.width, canvas.height, img.width, img.height);
   context.drawImage(img, dimensions.startX, dimensions.startY, dimensions.width, dimensions.height);
-  // Some helpful tips:
-  // - Fill the whole Canvas with black first to add borders on non-square images, then draw on top
-  // - Clear the form when a new image is selected
-  // - If you draw the image to canvas here, it will update as soon as a new image is selected
 });
 
 imgInput.addEventListener('change', () => {
@@ -36,6 +37,35 @@ imgInput.addEventListener('change', () => {
   img.src = URL.createObjectURL(file);
   // set the image alt attribute by extracting the image file name from the file path
   img.alt = file.name;
+});
+
+form.addEventListener('submit', (e) => {
+  // on submit, generate your meme by grabbing the text in the two inputs with ids text-top and text-bottom, and adding the relevant text to the canvas (note: you should still be able to add text to the canvas without an image uploaded)
+  e.preventDefault();
+  context.fillStyle = 'white';
+  context.font = '50px Impact';
+  context.textAlign = 'center';
+  context.fillText(textTop.value, canvas.width * 0.5, canvas.height * 0.14);
+  context.fillText(textBottom.value, canvas.width * 0.5, canvas.height * 0.95);
+  // toggle relevant buttons
+  generateButton.disabled = true;
+  clearButton.disabled = false;
+  readButton.disabled = false;
+  textTop.disabled = true;
+  textBottom.disabled = true;
+});
+
+clearButton.addEventListener('click', () => {
+  // on click, clear the image and/or text present
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  // toggle relevant buttons
+  textTop.value = '';
+  textBottom.value = '';
+  generateButton.disabled = false;
+  clearButton.disabled = true;
+  readButton.disabled = true;
+  textTop.disabled = false;
+  textBottom.disabled = false;
 });
 
 /**
