@@ -1,12 +1,12 @@
 # CSE110 SP21 Lab 5
 
 ## Author(s):
-- YOUR NAME
+- Tanay Reddy
 
 ## Part 1:
 
-LINK TO YOUR PUBLISHED SITE
+https://tanaykreddy.github.io/Lab5/
 
 ## Part 2:
 
-LINK TO YOUR PART 2 REPOSITORY
+https://github.com/tanaykreddy/github-actions-for-ci
